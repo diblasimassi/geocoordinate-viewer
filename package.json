@@ -1,0 +1,23 @@
+{
+    "name": "geocoordinate-viewer",
+    "version": "1.0.0",
+    "description": "View geographic coordinates on offline satellite maps",
+    "main": "index.html",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [
+        "geocoordinate",
+        "maps",
+        "offline",
+        "ESA",
+        "satellite"
+    ],
+    "author": "",
+    "license": "MIT",
+    "dependencies": {
+        "@capacitor/android": "^8.0.2",
+        "@capacitor/cli": "^8.0.2",
+        "@capacitor/core": "^8.0.2"
+    }
+}

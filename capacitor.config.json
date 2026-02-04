@@ -1,0 +1,8 @@
+{
+  "appId": "com.esa.geocoordinate",
+  "appName": "GeoCoordinate Viewer",
+  "webDir": ".",
+  "server": {
+    "androidScheme": "https"
+  }
+}
