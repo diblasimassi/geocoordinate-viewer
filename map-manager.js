@@ -6,6 +6,7 @@ class MapManager {
         this.map = null;
         this.currentMarker = null;
         this.currentLocation = null;
+        this.currentESAFacility = null; // Track current ESA facility
         this.init();
     }
 
@@ -60,7 +61,7 @@ class MapManager {
 
         // Update zoom display
         this.map.on('zoomend', () => {
-            this.updateLocationDetails();
+            this.updateLocationDetails(this.currentESAFacility);
         });
 
         // Click on map to get coordinates
@@ -71,6 +72,78 @@ class MapManager {
         console.log('✅ Map initialized with ESRI World Imagery');
     }
 
+    // ESA Facilities Data
+    getESAFacilities() {
+        return [
+            {
+                name: 'ESRIN',
+                lat: 41.8273,
+                lon: 12.6734,
+                radius: 2,
+                desc: 'ESA Centre for Earth Observation',
+                location: 'Frascati, Italy',
+                established: '1966',
+                function: 'Earth observation data processing and distribution. Houses the ESA Climate Office and hosts mission control for several Earth observation satellites.',
+                staff: '~370 employees'
+            },
+            {
+                name: 'ESTEC',
+                lat: 52.2167,
+                lon: 4.4208,
+                radius: 2,
+                desc: 'European Space Research and Technology Centre',
+                location: 'Noordwijk, Netherlands',
+                established: '1968',
+                function: 'ESA\'s largest establishment. Design, development and testing of spacecraft and technology. Home to mission control for several satellites.',
+                staff: '~2,700 employees'
+            },
+            {
+                name: 'ESOC',
+                lat: 49.8719,
+                lon: 8.6228,
+                radius: 2,
+                desc: 'European Space Operations Centre',
+                location: 'Darmstadt, Germany',
+                established: '1967',
+                function: 'Mission control for ESA satellites. Operates spacecraft, plans missions, and maintains the ground station network.',
+                staff: '~800 employees'
+            },
+            {
+                name: 'ESA HQ',
+                lat: 48.8467,
+                lon: 2.3706,
+                radius: 2,
+                desc: 'ESA Headquarters',
+                location: 'Paris, France',
+                established: '1975',
+                function: 'Administrative headquarters of the European Space Agency. Manages overall agency policy and programs.',
+                staff: '~280 employees'
+            },
+            {
+                name: 'ESAC',
+                lat: 40.4425,
+                lon: -3.9528,
+                radius: 2,
+                desc: 'European Space Astronomy Centre',
+                location: 'Villanueva de la Cañada (Madrid), Spain',
+                established: '2008',
+                function: 'Houses science operations for ESA astronomy and planetary missions. Home to the ESA archive for space science missions.',
+                staff: '~290 employees'
+            },
+            {
+                name: 'CSG',
+                lat: 5.2394,
+                lon: -52.7683,
+                radius: 3,
+                desc: 'Guiana Space Centre',
+                location: 'Kourou, French Guiana',
+                established: '1968',
+                function: 'Europe\'s Spaceport. Launch site for Ariane rockets and provides launch services for ESA and commercial customers.',
+                staff: '~1,700 employees'
+            }
+        ];
+    }
+
     goToLocation(lat, lon, zoom = 16) {
         if (!lat || !lon) {
             console.error('Invalid coordinates');
@@ -78,6 +151,11 @@ class MapManager {
         }
 
         this.currentLocation = { lat, lon };
+
+        // Check if matching ESA facility
+        const esaFacility = this.getNearbyESA(lat, lon);
+        this.currentESAFacility = esaFacility; // Store for later use
+        const targetZoom = esaFacility ? 18 : zoom;
 
         // Remove previous marker
         if (this.currentMarker) {
@@ -89,7 +167,7 @@ class MapManager {
             .addTo(this.map)
             .bindPopup(`
                 <div style="color: #fff; font-family: Inter, sans-serif;">
-                    <strong>📍 Location</strong><br>
+                    <strong>${esaFacility ? 'ESA: ' + esaFacility.name : '📍 Location'}</strong><br>
                     <span style="font-size: 13px; color: #b8b8d1;">
                         ${lat.toFixed(6)}, ${lon.toFixed(6)}
                     </span>
@@ -98,22 +176,56 @@ class MapManager {
             .openPopup();
 
         // Pan to location with smooth animation
-        this.map.flyTo([lat, lon], zoom, {
+        this.map.flyTo([lat, lon], targetZoom, {
             animate: true,
             duration: 1.5
         });
 
         // Update location details panel
-        this.updateLocationDetails();
+        this.updateLocationDetails(esaFacility);
 
-        // Show details panel
+        // Logic: Only show panel if ESA facility
         const detailsPanel = document.getElementById('details-panel');
-        detailsPanel.classList.remove('hidden');
-
-        console.log(`✅ Navigate to: ${lat}, ${lon}`);
+        if (esaFacility) {
+            detailsPanel.classList.remove('hidden');
+            console.log(`✅ Navigate to ESA Facility: ${esaFacility.name}`);
+        } else {
+            detailsPanel.classList.add('hidden');
+            console.log(`✅ Navigate to: ${lat}, ${lon} (Panel hidden)`);
+        }
     }
 
-    updateLocationDetails() {
+    getNearbyESA(lat, lon) {
+        const facilities = this.getESAFacilities();
+        // Check if within 2km of any facility
+        // Simple distance check (approximate)
+        for (const facility of facilities) {
+            const dist = this.calculateDistance(lat, lon, facility.lat, facility.lon);
+            if (dist <= 2) { // 2km radius
+                return facility;
+            }
+        }
+        return null;
+    }
+
+    calculateDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371; // Radius of the earth in km
+        const dLat = this.deg2rad(lat2 - lat1);
+        const dLon = this.deg2rad(lon2 - lon1);
+        const a =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(this.deg2rad(lat1)) * Math.cos(this.deg2rad(lat2)) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        const d = R * c; // Distance in km
+        return d;
+    }
+
+    deg2rad(deg) {
+        return deg * (Math.PI / 180);
+    }
+
+    updateLocationDetails(esaFacility = null) {
         if (!this.currentLocation) return;
 
         const { lat, lon } = this.currentLocation;
@@ -127,6 +239,20 @@ class MapManager {
         document.getElementById('detail-lon').textContent =
             `${lon.toFixed(6)}°`;
         document.getElementById('detail-zoom').textContent = zoom;
+
+        // Update ESA Info
+        const esaInfo = document.getElementById('esa-info');
+        if (esaFacility) {
+            esaInfo.classList.remove('hidden');
+            document.getElementById('esa-name').textContent = esaFacility.name;
+            document.getElementById('esa-desc').textContent = esaFacility.desc;
+            document.getElementById('esa-location').textContent = esaFacility.location;
+            document.getElementById('esa-established').textContent = esaFacility.established;
+            document.getElementById('esa-staff').textContent = esaFacility.staff;
+            document.getElementById('esa-function').textContent = esaFacility.function;
+        } else {
+            esaInfo.classList.add('hidden');
+        }
 
         // Trigger reverse geocoding
         if (window.locationDetails) {

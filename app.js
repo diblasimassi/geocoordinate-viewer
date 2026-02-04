@@ -46,21 +46,7 @@ function setupEventListeners() {
         document.getElementById('details-panel').classList.add('hidden');
     });
 
-    // Copy coordinates button
-    document.getElementById('copy-coords').addEventListener('click', () => {
-        if (mapManager.currentLocation) {
-            const { lat, lon } = mapManager.currentLocation;
-            locationDetails.copyCoordinates(lat, lon);
-        }
-    });
 
-    // Share location button
-    document.getElementById('share-location').addEventListener('click', () => {
-        if (mapManager.currentLocation) {
-            const { lat, lon } = mapManager.currentLocation;
-            locationDetails.shareLocation(lat, lon);
-        }
-    });
 }
 
 // Handle go to location

@@ -68,8 +68,6 @@
                 <ul>
                     <li>Enter coordinates and click "Go to Location"</li>
                     <li>Zoom and pan on the map to explore</li>
-                    <li>Visited areas are saved for offline use</li>
-                    <li>ESA facilities are pre-cached for offline access</li>
                 </ul>
             </div>
         </div>
@@ -81,6 +79,26 @@
         <div id="details-panel" class="details-panel hidden">
             <button class="close-btn" id="close-details">✕</button>
             <h2>📍 Location Details</h2>
+
+            <div id="esa-info" class="esa-info hidden">
+                <img src="images/esa-station.png" alt="ESA Facility" class="esa-image">
+                <h3 id="esa-name">ESA Facility</h3>
+                <p id="esa-desc" class="esa-desc">European Space Agency Site</p>
+                <div class="esa-details">
+                    <div class="esa-detail-item">
+                        <strong>📍 Location:</strong> <span id="esa-location">—</span>
+                    </div>
+                    <div class="esa-detail-item">
+                        <strong>📅 Established:</strong> <span id="esa-established">—</span>
+                    </div>
+                    <div class="esa-detail-item">
+                        <strong>👥 Staff:</strong> <span id="esa-staff">—</span>
+                    </div>
+                    <div class="esa-detail-item">
+                        <strong>🎯 Function:</strong> <span id="esa-function">—</span>
+                    </div>
+                </div>
+            </div>
 
             <div class="detail-item">
                 <span class="detail-label">Coordinates:</span>
@@ -109,14 +127,7 @@
                 </span>
             </div>
 
-            <div class="detail-actions">
-                <button id="copy-coords" class="btn-action">
-                    📋 Copy Coordinates
-                </button>
-                <button id="share-location" class="btn-action">
-                    🔗 Share
-                </button>
-            </div>
+
         </div>
 
     </div>
